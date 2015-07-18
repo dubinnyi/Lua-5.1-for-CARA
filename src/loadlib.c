@@ -352,10 +352,26 @@ static const char *findfile (lua_State *L, const char *name,
                                            const char *pname) {
   const char *path;
   name = luaL_gsub(L, name, ".", LUA_DIRSEP);
+#ifdef __original_lua_code__
   lua_getfield(L, LUA_ENVIRONINDEX, pname);
   path = lua_tostring(L, -1);
   if (path == NULL)
     luaL_error(L, LUA_QL("package.%s") " must be a string", pname);
+#else /* ROCHUS */
+  /* Wie Original, aber statt package.path oder cpath wird registry.path oder cpath verwendet, falls gesetzt. */
+  lua_getfield(L, LUA_REGISTRYINDEX, pname );
+  path = lua_tostring(L, -1);
+  if( path == NULL )
+  {
+      /* kein Glück in registry.path oder cpath; versuche nun den konventionellen Weg via package.path oder cpath. */
+      lua_pop(L,1);
+      /* Ab hier wieder Originalcode */
+      lua_getfield(L, LUA_ENVIRONINDEX, pname);
+      path = lua_tostring(L, -1);
+      if (path == NULL)
+        luaL_error(L, LUA_QL("package.%s") " must be a string", pname);
+  }
+#endif
   lua_pushliteral(L, "");  /* error accumulator */
   while ((path = pushnexttemplate(L, path)) != NULL) {
     const char *filename;

@@ -35,3 +35,7 @@ See HISTORY for a summary of changes since the last released version.
   For more information about the authors, see http://www.lua.org/authors.html .
 
 (end of README)
+
+Addition by Rochus:
+This is the Lua version 5.1 used by CARA (Computer Aided Resonance Assignment). Only
+two files are modified compared to the original distribution: loadlib.c and lundump.c.

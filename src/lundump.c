@@ -212,7 +212,9 @@ static Proto* LoadFunction(LoadState* S, TString* p)
     if (++S->L->nCcalls > LUAI_MAXCCALLS) error(S,"code too deep");
     f=luaF_newproto(S->L);
 	setptvalue2s(S->L,S->L->top,f); incr_top(S->L);
-	f->source=LoadString(S); if (f->source==NULL) f->source=p;
+	f->source=LoadString(S); 
+    	if (f->source==NULL || f->source->tsv.len == 0 ) // FIX ROCHUS: added || f->source->tsv.len == 0
+		f->source=p;
 	f->linedefined=LoadInt(S);
 	f->lastlinedefined=LoadInt(S);
 	f->nups=LoadByte(S);
@@ -255,7 +257,9 @@ Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name)
 	S.Z=Z;
 	S.b=buff;
 	LoadHeader(&S);
-	return LoadFunction(&S,luaS_newliteral(L,"=?"));
+    	// FIX ROCHUS, da sonst source immer leer:
+    	lua_assert( name );
+    	return LoadFunction(&S,luaS_new(L, name )); // Original: luaS_newliteral(L,"=?"));
 }
 
 /*
